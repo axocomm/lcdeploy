@@ -7,6 +7,7 @@ module LCD
 
     def run!
       File.open(@filename) do |fh|
+        require 'lcdeploy/bootstrap'
         eval fh.read
       end
     end

@@ -1,0 +1,78 @@
+module LCD
+  class Resources
+    def self.create_directory(dir, params = {})
+      user = params[:user]
+      group = params[:group]
+      mode = params[:mode]
+
+      cmd = []
+      cmd << "mkdir #{dir}"
+      if user and group
+        cmd << "chown #{user}:#{group} #{dir}"
+      elsif user
+        cmd << "chown #{user} #{dir}"
+      elsif group
+        cmd << "chown :#{group} #{dir}"
+      end
+
+      if mode
+        cmd << "chmod #{mode.to_base(8)} #{dir}"
+      end
+
+      cmd.join(' && ')
+    end
+
+    def self.create_file(filename, params = {})
+      user = params[:user] || 'root'
+      group = params[:group] || 'root'
+      content = params[:content] or raise "'content' is required"
+      mode = params[:mode] || 0644
+
+      puts ""
+    end
+
+    def self.clone_repository(source, params = {})
+      to = params[:to] or raise "'to' parameter is required"
+      user = params[:user] || 'root'
+      branch = params[:branch] || 'master'
+
+      self.as_user user, "git clone -b #{branch} #{source} #{to}"
+    end
+
+    def self.build_docker_image(name, params = {})
+      path = params[:path] || '.'
+      tag = params[:tag] || 'latest'
+
+      "docker build -t #{name}:#{tag} #{path}"
+    end
+
+    def self.run_docker_container(name, params = {})
+      image = params[:image] or fail "'image' is required"
+      ports = params[:ports]
+      volumes = params[:volumes]
+
+      cmd = []
+      cmd << "docker run -d --name=#{name}"
+
+      if ports
+        cmd << ports.map do |pd|
+          ps = pd.is_a?(Array) ? pd.join(':') : pd
+          "-p #{ps}"
+        end.join(' ')
+      end
+
+      if volumes
+        cmd << volumes.map do |vd|
+          "-v #{vd.join(':')}"
+        end.join(' ')
+      end
+
+      cmd << image
+      cmd.join(' ')
+    end
+
+    def self.as_user(user, command)
+      "sudo -u #{user} #{command}"
+    end
+  end
+end
