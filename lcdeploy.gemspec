@@ -7,6 +7,10 @@ Gem::Specification.new do |s|
   s.description = 'Simple specification of basic deploy steps'
   s.authors     = %w(axocomm)
   s.email       = 'axocomm@gmail.com'
-  s.files       = []
+  s.files       = ['lib/lcdeploy/cli.rb',
+                   'lib/lcdeploy/util.rb',
+                   'lib/lcdeploy/lcdfile.rb']
   s.license     = 'MIT'
+
+  s.add_dependency 'thor', '~> 0.20'
 end
