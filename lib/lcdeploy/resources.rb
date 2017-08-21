@@ -1,4 +1,9 @@
 module LCD
+  # For now this is just going to be generating lines of bash to run
+  # either locally or over SSH.
+  #
+  # Maybe eventually they will actually be smarter, but for now this
+  # is fine.
   class Resources
     def self.create_directory(dir, params = {})
       user = params[:user]
@@ -20,15 +25,6 @@ module LCD
       end
 
       cmd.join(' && ')
-    end
-
-    def self.create_file(filename, params = {})
-      user = params[:user] || 'root'
-      group = params[:group] || 'root'
-      content = params[:content] or raise "'content' is required"
-      mode = params[:mode] || 0644
-
-      puts ""
     end
 
     def self.clone_repository(source, params = {})

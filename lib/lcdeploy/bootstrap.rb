@@ -1,14 +1,39 @@
 require 'lcdeploy/resources'
 
 module LCD
+  # This should actually take care of executing the commands generated
+  # by the resources.
+  #
+  # TODO: I guess it is up to this to determine if commands are run
+  # locally or over SSH. Perhaps it is best to have that returned by
+  # the resources themselves instead, or turn the resources into their
+  # own classes extending ShellCommand or something?
   class Bootstrap
+    @@ssh_base_config = {
+      port: 22,
+      host: 'localhost'
+    }
+
     private
-    def self.run(cmd)
-      if $dry_run
-        puts cmd
-      else
-        puts "Actually running #{cmd}"
+    def self.run(cmd, params = {})
+      title = params[:title] || cmd
+
+      if cmd.nil?
+        puts "!!! Skipping #{title}"
+        return
       end
+
+      if params[:ssh]
+        ssh_config = @@ssh_base_config.merge(params[:ssh_config] || {})
+        cmd = "ssh -p#{ssh_config[:port]} #{ssh_config[:host]} #{cmd}"
+      end
+
+      if $dry_run or params[:dry_run]
+        puts cmd
+        return
+      end
+
+      puts "Actually running #{cmd}"
     end
   end
 end
