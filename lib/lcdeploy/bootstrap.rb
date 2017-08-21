@@ -1,3 +1,5 @@
+require 'json'
+
 require 'lcdeploy/resources'
 
 module LCD
@@ -9,51 +11,42 @@ module LCD
   # the resources themselves instead, or turn the resources into their
   # own classes extending ShellCommand or something?
   class Bootstrap
-    @@ssh_base_config = {
-      port: 22,
-      host: 'localhost'
-    }
-
-    private
-    def self.run(cmd, params = {})
-      title = params[:title] || cmd
-
-      if cmd.nil?
-        puts "!!! Skipping #{title}"
-        return
-      end
-
-      if params[:ssh]
-        ssh_config = @@ssh_base_config.merge(params[:ssh_config] || {})
-        cmd = "ssh -p#{ssh_config[:port]} #{ssh_config[:host]} #{cmd}"
-      end
-
-      if $dry_run or params[:dry_run]
-        puts cmd
-        return
-      end
-
-      puts "Actually running #{cmd}"
+    def initialize(config = {})
+      @config = config || {}
     end
+
+    def run!(cmd)
+      puts "Running #{cmd} with #{@config.inspect}"
+    end
+  end
+end
+
+def configure!(config)
+  if file = config[:from_file]
+    File.open(file) do |fh|
+      $config = JSON.parse(fh.read, symbolize_names: true)
+    end
+  else
+    $config = config
   end
 end
 
 def create_directory(name, params = {})
   cmd = LCD::Resources.create_directory(name, params)
-  LCD::Bootstrap.run cmd
+  LCD::Bootstrap.new($config).run! cmd
 end
 
 def clone_repository(source, params = {})
   cmd = LCD::Resources.clone_repository(source, params)
-  LCD::Bootstrap.run cmd
+  LCD::Bootstrap.new($config).run! cmd
 end
 
 def build_docker_image(name, params = {})
   cmd = LCD::Resources.build_docker_image(name, params)
-  LCD::Bootstrap.run cmd
+  LCD::Bootstrap.new($config).run! cmd
 end
 
 def run_docker_container(name, params = {})
   cmd = LCD::Resources.run_docker_container(name, params)
-  LCD::Bootstrap.run cmd
+  LCD::Bootstrap.new($config).run! cmd
 end
