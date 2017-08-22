@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
                    'lib/lcdeploy/cli.rb',
                    'lib/lcdeploy/util.rb',
                    'lib/lcdeploy/lcdfile.rb',
-                   'lib/lcdeploy/resources.rb']
+                   'lib/lcdeploy/steps.rb']
   s.license     = 'MIT'
 
   s.add_dependency 'thor', '~> 0.20'

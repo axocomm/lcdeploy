@@ -1,0 +1,15 @@
+configure from_file: 'config.json'
+
+repo_dir = '/home/deploy/lambda.codes'
+
+create_directory '/www/lambda.codes', user: 'deploy', mode: 0655
+clone_repository 'git@gitlab.com:axocomm/lambda.codes',
+                 to: repo_dir,
+                 user: 'deploy',
+                 branch: 'dev'
+build_docker_image 'lambda-codes', tag: 'staging', path: repo_dir
+run_docker_container 'lambda-codes',
+                     image: 'lambda-codes',
+                     tag: 'staging',
+                     ports: [5000, [123, 456]],
+                     volumes: [[Dir.pwd, '/app']]

@@ -9,7 +9,7 @@ module LCD
 
     desc 'preview LCDFILE', 'Preview commands that will be run'
     def preview(filename = LCD::Util.default_lcdfile)
-      lcdfile = LCD::LCDFile.new(filename)
+      puts LCD::LCDFile.new(filename).preview
     end
 
     desc 'deploy LCDFILE', 'Run a deploy'
