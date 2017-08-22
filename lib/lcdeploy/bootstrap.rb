@@ -13,10 +13,15 @@ module LCD
   class Bootstrap
     def initialize(config = {})
       @config = config || {}
+      puts "!!! Initializing LCD::Bootstrap with #{@config}"
     end
 
-    def run!(cmd)
-      puts "Running #{cmd} with #{@config.inspect}"
+    def run!(cmd, params = {})
+      if params[:locally]
+        puts "Running #{cmd} locally"
+      else
+        puts "Running #{cmd} remotely"
+      end
     end
   end
 end
@@ -49,4 +54,10 @@ end
 def run_docker_container(name, params = {})
   cmd = LCD::Resources.run_docker_container(name, params)
   LCD::Bootstrap.new($config).run! cmd
+end
+
+def put_file(destination, params = {})
+  cmd_params = $config.merge(params)
+  cmd = LCD::Resources.put_file(destination, cmd_params)
+  LCD::Bootstrap.new($config).run! cmd, locally: true
 end

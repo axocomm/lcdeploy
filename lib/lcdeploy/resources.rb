@@ -67,6 +67,16 @@ module LCD
       cmd.join(' ')
     end
 
+    def self.put_file(destination, params = {})
+      source = params[:source] or fail "'source' is required"  # TODO: content
+      host = params[:ssh_host] or fail "'host' is required"
+      port = params[:ssh_port] || 22
+      user = params[:user]
+
+      host_str = user.nil? ? host : "#{user}@#{host}"
+      "scp -P #{port} #{source} #{host_str}:#{destination}"
+    end
+
     def self.as_user(user, command)
       "sudo -u #{user} #{command}"
     end
