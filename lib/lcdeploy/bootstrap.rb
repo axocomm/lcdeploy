@@ -1,28 +1,6 @@
 require 'json'
-require 'singleton'
 
 require 'lcdeploy/steps'
-
-module LCD
-  class StepRunner
-    include Singleton
-
-    @@type_dispatch = {
-      :create_directory     => CreateDirectory,
-      :clone_repository     => CloneRepository,
-      :build_docker_image   => BuildDockerImage,
-      :run_docker_container => RunDockerContainer
-    }
-
-    attr_accessor :config
-
-    def dispatch(type, params = {})
-      cls = @@type_dispatch[type] or raise "Unknown resource type '#{type.to_s}'"
-      resource = cls.new(config)
-      resource.run!(params)
-    end
-  end
-end
 
 def configure(config)
   if file = config[:from_file]

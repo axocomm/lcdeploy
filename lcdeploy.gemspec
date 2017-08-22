@@ -15,4 +15,5 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
 
   s.add_dependency 'thor', '~> 0.20'
+  s.add_dependency 'net-ssh', '~> 3.1'
 end
