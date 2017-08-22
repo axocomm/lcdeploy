@@ -144,12 +144,12 @@ module LCD
     attr_accessor :config
 
     def dispatch(type, params = {})
-      cls = @@type_dispatch[type] or raise "Unknown resource type '#{type.to_s}'"
-      resource = cls.new(config)
+      cls = @@type_dispatch[type] or raise "Unknown step type '#{type.to_s}'"
+      step = cls.new(config)
       if $dry_run
-        puts resource.cmd_str(params)
+        puts step.cmd_str(params)
       else
-        resource.run!(params)
+        step.run!(params)
       end
     end
   end
