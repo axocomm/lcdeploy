@@ -1,10 +1,10 @@
 require 'json'
 require 'singleton'
 
-require 'lcdeploy/resources'
+require 'lcdeploy/steps'
 
 module LCD
-  class ResourceRunner
+  class StepRunner
     include Singleton
 
     @@type_dispatch = {
@@ -31,25 +31,25 @@ def configure(config)
     end
   end
 
-  LCD::ResourceRunner.instance.config = config
+  LCD::StepRunner.instance.config = config
 end
 
 def create_directory(target, params = {})
   params.merge!(target: target)
-  LCD::ResourceRunner.instance.dispatch :create_directory, params
+  LCD::StepRunner.instance.dispatch :create_directory, params
 end
 
 def clone_repository(source, params = {})
   params.merge!(source: source)
-  LCD::ResourceRunner.instance.dispatch :clone_repository, params
+  LCD::StepRunner.instance.dispatch :clone_repository, params
 end
 
 def build_docker_image(name, params = {})
   params.merge!(name: name)
-  LCD::ResourceRunner.instance.dispatch :build_docker_image, params
+  LCD::StepRunner.instance.dispatch :build_docker_image, params
 end
 
 def run_docker_container(name, params = {})
   params.merge!(name: name)
-  LCD::ResourceRunner.instance.dispatch :run_docker_container, params
+  LCD::StepRunner.instance.dispatch :run_docker_container, params
 end
