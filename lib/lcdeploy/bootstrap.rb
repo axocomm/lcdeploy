@@ -1,5 +1,4 @@
 require 'json'
-require 'singleton'
 
 require 'lcdeploy/steps'
 

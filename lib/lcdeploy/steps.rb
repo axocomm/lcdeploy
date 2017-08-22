@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'singleton'
 
 module LCD
   module Steps
