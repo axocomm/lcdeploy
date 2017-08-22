@@ -30,7 +30,8 @@ module LCD
     include Singleton
 
     @@type_dispatch = {
-      :create_directory => CreateDirectoryResource
+      :create_directory => CreateDirectory,
+      :clone_repository => CloneRepository
     }
 
     attr_accessor :config
@@ -56,4 +57,9 @@ end
 def create_directory(target, params = {})
   params.merge!(target: target)
   LCD::ResourceRunner.instance.dispatch :create_directory, params
+end
+
+def clone_repository(source, params = {})
+  params.merge!(source: source)
+  LCD::ResourceRunner.instance.dispatch :clone_repository, params
 end

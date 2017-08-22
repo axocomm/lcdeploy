@@ -8,6 +8,10 @@ module LCD
       raise NotImplementedError, 'Resource class must implement run!'
     end
 
+    def cmd_str
+      raise NotImplementedError, 'Resource class must implement cmd_str'
+    end
+
     def self.as_user(username, cmd)
       "sudo -u #{username} #{cmd}"
     end
@@ -17,7 +21,7 @@ module LCD
     end
   end
 
-  class CreateDirectoryResource < Resource
+  class CreateDirectory < Resource
     def run!(params = {})
       puts cmd_str(params)
     end
@@ -43,6 +47,26 @@ module LCD
       end
 
       cmd.join(' && ')
+    end
+  end
+
+  class CloneRepository < Resource
+    def run!(params = {})
+      puts cmd_str(params)
+    end
+
+    def cmd_str(params)
+      source = params[:source] or raise "'source' parameter is required"
+      target = params[:to] or raise "'target' parameter is required"
+      user = params[:user]
+      branch = params[:branch] || 'master'
+
+      cmd = "git clone -b #{branch} #{source} #{target}"
+      if user
+        Resource.as_user user, cmd
+      else
+        cmd
+      end
     end
   end
 end
