@@ -31,3 +31,8 @@ def run_docker_container(name, params = {})
   params.merge!(name: name)
   LCD::StepRunner.instance.dispatch :run_docker_container, params
 end
+
+def put_file(target, params = {})
+  params.merge!(target: target)
+  LCD::StepRunner.instance.dispatch :put_file, params
+end

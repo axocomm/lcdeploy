@@ -31,21 +31,7 @@ module LCD
         "sudo -u #{username} #{cmd}"
       end
 
-      def to_s
-        "#{name}#{@config.inspect}"
-      end
-    end
-
-    class RemoteStep < Step
-      def run!(params = {})
-        cmd = cmd_str(params)
-        if should_run?(params)
-          puts RemoteStep.ssh_exec(cmd, @config)
-        else
-          puts "Skipping remote `#{cmd}`"
-        end
-      end
-
+      # TODO: make instance methods
       private
       def self.ssh_exec(cmd, config)
         user = config[:ssh_user] or raise "'ssh_user' must be configured"
@@ -62,6 +48,62 @@ module LCD
         Net::SSH.start(host, user, extra_opts) do |ssh|
           ssh.exec_sc!(cmd)
         end
+      end
+
+      def self.upload_file(params, config)
+        user = config[:ssh_user] or raise "'ssh_user' must be configured"
+        port = config[:ssh_port] || 22
+        host = config[:ssh_host] or raise "'ssh_host' must be configured"
+
+        extra_opts = { port: port }
+        if password = config[:ssh_password]
+          extra_opts.merge!(password: password)
+        elsif ssh_key = config[:ssh_key]
+          extra_opts.merge!(keys: [ssh_key])
+        end
+
+        source = params[:source] or raise "'source' is required"
+        target = params[:target] or raise "'target' is required"
+
+        Net::SSH.start(host, user, extra_opts) do |ssh|
+          ssh.scp.upload(source, target)
+        end
+      end
+
+      def to_s
+        "#{name}#{@config.inspect}"
+      end
+    end
+
+    class RemoteStep < Step
+      def run!(params = {})
+        cmd = cmd_str(params)
+        if should_run?(params)
+          puts Step.ssh_exec(cmd, @config)
+        else
+          puts "Skipping remote `#{cmd}`"
+        end
+      end
+    end
+
+    # TODO: consider another child class for steps that run commands and
+    # steps that do not necessarily depend on a single command.
+    class PutFile < Step
+      def run!(params = {})
+        if should_run?(params)
+          Step.upload_file(params, @config)
+        else
+          puts "Skipping upload of #{params[:target]}"
+        end
+      end
+
+      def cmd_str(params)
+        "scp -P#{@config[:ssh_port]} #{params[:source]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{params[:target]}"
+      end
+
+      def should_run?(params)
+        result = Step.ssh_exec("test -f #{params[:target]}", @config)
+        result[:exit_code] == 1
       end
     end
 
@@ -90,7 +132,7 @@ module LCD
       end
 
       def should_run?(params)
-        result = RemoteStep.ssh_exec("test -d #{params[:target]}", @config)
+        result = Step.ssh_exec("test -d #{params[:target]}", @config)
         result[:exit_code] == 1
       end
     end
@@ -122,7 +164,7 @@ module LCD
 
       def should_run?(params)
         cmd = "docker ps -a | grep -qs #{name}"
-        result = RemoteStep.ssh_exec(cmd, @config)
+        result = Step.ssh_exec(cmd, @config)
         params[:rebuild] || result[:exit_code] == 1
       end
     end
@@ -156,7 +198,7 @@ module LCD
 
       def should_run?(params)
         cmd = "docker ps | grep -qs #{name}"
-        result = RemoteStep.ssh_exec(cmd, @config)
+        result = Step.ssh_exec(cmd, @config)
         result[:exit_code] == 1
       end
     end
@@ -169,7 +211,8 @@ module LCD
       :create_directory     => Steps::CreateDirectory,
       :clone_repository     => Steps::CloneRepository,
       :build_docker_image   => Steps::BuildDockerImage,
-      :run_docker_container => Steps::RunDockerContainer
+      :run_docker_container => Steps::RunDockerContainer,
+      :put_file             => Steps::PutFile
     }
 
     attr_accessor :config
