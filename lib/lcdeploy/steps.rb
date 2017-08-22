@@ -1,3 +1,5 @@
+require 'net/ssh'
+
 module LCD
   class Step
     def initialize(config = {})
@@ -5,7 +7,8 @@ module LCD
     end
 
     def run!(params = {})
-      puts cmd_str(params)
+      cmd = cmd_str(params)
+      puts "`#{cmd}`"
     end
 
     def cmd_str(params)
@@ -23,7 +26,23 @@ module LCD
 
   class RemoteStep < Step
     def run!(params = {})
-      puts "REMOTE #{cmd_str(params)}"
+      cmd = cmd_str(params)
+      puts RemoteStep.ssh_exec(cmd, @config)
+    end
+
+    private
+    def self.ssh_exec(cmd, config)
+      user = config[:ssh_user] or raise "'ssh_user' must be configured"
+      port = config[:ssh_port] || 22
+      host = config[:ssh_host] or raise "'ssh_host' must be configured"
+      password = config[:ssh_password]
+
+      extra_opts = { port: port }
+      extra_opts.merge!(password: password) unless password.nil?
+
+      Net::SSH.start(host, user, extra_opts) do |ssh|
+        ssh.exec!(cmd)
+      end
     end
   end
 

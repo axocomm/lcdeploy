@@ -19,7 +19,11 @@ module LCD
     def dispatch(type, params = {})
       cls = @@type_dispatch[type] or raise "Unknown resource type '#{type.to_s}'"
       resource = cls.new(config)
-      resource.run!(params)
+      if $dry_run
+        puts resource.cmd_str(params)
+      else
+        resource.run!(params)
+      end
     end
   end
 end
