@@ -1,6 +1,8 @@
 require 'net/ssh'
 require 'singleton'
 
+require 'lcdeploy/util'
+
 module LCD
   module Steps
     class Step
@@ -10,11 +12,19 @@ module LCD
 
       def run!(params = {})
         cmd = cmd_str(params)
-        puts "`#{cmd}`"
+        if should_run?(params)
+          puts "`#{cmd}`"
+        else
+          puts "Skipping `#{cmd}`"
+        end
       end
 
       def cmd_str(params)
         raise NotImplementedError, 'Step class must implement cmd_str'
+      end
+
+      def should_run?(params)
+        true
       end
 
       def self.as_user(username, cmd)
@@ -29,7 +39,11 @@ module LCD
     class RemoteStep < Step
       def run!(params = {})
         cmd = cmd_str(params)
-        puts RemoteStep.ssh_exec(cmd, @config)
+        if should_run?(params)
+          puts RemoteStep.ssh_exec(cmd, @config)
+        else
+          puts "Skipping remote `#{cmd}`"
+        end
       end
 
       private
@@ -46,7 +60,7 @@ module LCD
         end
 
         Net::SSH.start(host, user, extra_opts) do |ssh|
-          ssh.exec!(cmd)
+          ssh.exec_sc!(cmd)
         end
       end
     end
@@ -73,6 +87,11 @@ module LCD
         end
 
         cmd.join(' && ')
+      end
+
+      def should_run?(params)
+        result = RemoteStep.ssh_exec("test -d #{params[:target]}", @config)
+        result[:exit_code] == 1
       end
     end
 
