@@ -4,28 +4,6 @@ require 'singleton'
 require 'lcdeploy/resources'
 
 module LCD
-  # This should actually take care of executing the commands generated
-  # by the resources.
-  #
-  # TODO: I guess it is up to this to determine if commands are run
-  # locally or over SSH. Perhaps it is best to have that returned by
-  # the resources themselves instead, or turn the resources into their
-  # own classes extending ShellCommand or something?
-  class Bootstrap
-    def initialize(config = {})
-      @config = config || {}
-      puts "!!! Initializing LCD::Bootstrap with #{@config}"
-    end
-
-    def run!(cmd, params = {})
-      if params[:locally]
-        puts "Running #{cmd} locally"
-      else
-        puts "Running #{cmd} remotely"
-      end
-    end
-  end
-
   class ResourceRunner
     include Singleton
 
