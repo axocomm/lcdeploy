@@ -4,11 +4,11 @@ module LCD
       @config = config
     end
 
-    def run!
-      raise NotImplementedError, 'Resource class must implement run!'
+    def run!(params = {})
+      puts cmd_str(params)
     end
 
-    def cmd_str
+    def cmd_str(params)
       raise NotImplementedError, 'Resource class must implement cmd_str'
     end
 
@@ -22,10 +22,6 @@ module LCD
   end
 
   class CreateDirectory < Resource
-    def run!(params = {})
-      puts cmd_str(params)
-    end
-
     def cmd_str(params)
       target = params[:target] or raise "'target' parameter is required"
       user = params[:user]
@@ -51,10 +47,6 @@ module LCD
   end
 
   class CloneRepository < Resource
-    def run!(params = {})
-      puts cmd_str(params)
-    end
-
     def cmd_str(params)
       source = params[:source] or raise "'source' parameter is required"
       target = params[:to] or raise "'target' parameter is required"
