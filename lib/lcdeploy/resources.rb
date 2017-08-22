@@ -21,7 +21,13 @@ module LCD
     end
   end
 
-  class CreateDirectory < Resource
+  class RemoteResource < Resource
+    def run!(params = {})
+      puts "REMOTE #{cmd_str(params)}"
+    end
+  end
+
+  class CreateDirectory < RemoteResource
     def cmd_str(params)
       target = params[:target] or raise "'target' parameter is required"
       user = params[:user]
@@ -46,7 +52,7 @@ module LCD
     end
   end
 
-  class CloneRepository < Resource
+  class CloneRepository < RemoteResource
     def cmd_str(params)
       source = params[:source] or raise "'source' parameter is required"
       target = params[:to] or raise "'target' parameter is required"
@@ -62,7 +68,7 @@ module LCD
     end
   end
 
-  class BuildDockerImage < Resource
+  class BuildDockerImage < RemoteResource
     def cmd_str(params)
       name = params[:name] or raise "'name' parameter is required"
       path = params[:path] || '.'
@@ -72,7 +78,7 @@ module LCD
     end
   end
 
-  class RunDockerContainer < Resource
+  class RunDockerContainer < RemoteResource
     def cmd_str(params)
       image = params[:image] or raise "'image' parameter is required"
       name = params[:name] or raise "'name' parameter is required"
