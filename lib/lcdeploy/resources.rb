@@ -61,4 +61,42 @@ module LCD
       end
     end
   end
+
+  class BuildDockerImage < Resource
+    def cmd_str(params)
+      name = params[:name] or raise "'name' parameter is required"
+      path = params[:path] || '.'
+      tag = params[:tag] || 'latest'
+
+      "docker build -t #{name}:#{tag} #{path}"
+    end
+  end
+
+  class RunDockerContainer < Resource
+    def cmd_str(params)
+      image = params[:image] or raise "'image' parameter is required"
+      name = params[:name] or raise "'name' parameter is required"
+      ports = params[:ports]
+      volumes = params[:volumes]
+
+      cmd = []
+      cmd << "docker run -d --name=#{name}"
+
+      if ports
+        cmd << ports.map do |pd|
+          ps = pd.is_a?(Array) ? pd.join(':') : pd
+          "-p #{ps}"
+        end.join(' ')
+      end
+
+      if volumes
+        cmd << volumes.map do |vd|
+          "-v #{vd.join(':')}"
+        end
+      end
+
+      cmd << image
+      cmd.join(' ')
+    end
+  end
 end
