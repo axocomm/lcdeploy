@@ -35,10 +35,13 @@ module LCD
       user = config[:ssh_user] or raise "'ssh_user' must be configured"
       port = config[:ssh_port] || 22
       host = config[:ssh_host] or raise "'ssh_host' must be configured"
-      password = config[:ssh_password]
 
       extra_opts = { port: port }
-      extra_opts.merge!(password: password) unless password.nil?
+      if password = config[:ssh_password]
+        extra_opts.merge!(password: password)
+      elsif ssh_key = config[:ssh_key]
+        extra_opts.merge!(keys: [ssh_key])
+      end
 
       Net::SSH.start(host, user, extra_opts) do |ssh|
         ssh.exec!(cmd)
