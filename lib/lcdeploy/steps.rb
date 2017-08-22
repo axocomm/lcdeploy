@@ -119,6 +119,12 @@ module LCD
 
         "docker build -t #{name}:#{tag} #{path}"
       end
+
+      def should_run?(params)
+        cmd = "docker ps -a | grep -qs #{name}"
+        result = RemoteStep.ssh_exec(cmd, @config)
+        params[:rebuild] || result[:exit_code] == 1
+      end
     end
 
     class RunDockerContainer < RemoteStep
@@ -146,6 +152,12 @@ module LCD
 
         cmd << image
         cmd.join(' ')
+      end
+
+      def should_run?(params)
+        cmd = "docker ps | grep -qs #{name}"
+        result = RemoteStep.ssh_exec(cmd, @config)
+        result[:exit_code] == 1
       end
     end
   end
