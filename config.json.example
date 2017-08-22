@@ -1,0 +1,5 @@
+{
+  "ssh_port": 2012,
+  "ssh_host": "somewhere.else",
+  "ssh_user": "deploy"
+}
