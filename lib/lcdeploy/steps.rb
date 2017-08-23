@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'net/scp'
 require 'singleton'
 
 require 'lcdeploy/util'
@@ -31,6 +32,42 @@ module LCD
         "sudo -u #{username} #{cmd}"
       end
 
+      private
+      def ssh_exec(cmd)
+        user = @config[:ssh_user] or raise "'ssh_user' must be configured"
+        port = @config[:ssh_port] || 22
+        host = @config[:ssh_host] or raise "'ssh_host' must be configured"
+
+        extra_opts = { port: port }
+        if password = @config[:ssh_password]
+          extra_opts.merge!(password: password)
+        elsif ssh_key = @config[:ssh_key]
+          extra_opts.merge!(keys: [ssh_key])
+        end
+
+        Net::SSH.start(host, user, extra_opts) do |ssh|
+          ssh.exec_sc!(cmd)
+        end
+      end
+
+      def upload_file(params)
+        user = @config[:ssh_user] or raise "'ssh_user' must be configured"
+        port = @config[:ssh_port] || 22
+        host = @config[:ssh_host] or raise "'ssh_host' must be configured"
+
+        extra_opts = { port: port }
+        if password = @config[:ssh_password]
+          extra_opts.merge!(password: password)
+        elsif ssh_key = @config[:ssh_key]
+          extra_opts.merge!(keys: [ssh_key])
+        end
+
+        source = params[:source] or raise "'source' is required"
+        target = params[:target] or raise "'target' is required"
+
+        Net::SCP.upload!(host, user, source, target, ssh: extra_opts)
+      end
+
       def to_s
         "#{name}#{@config.inspect}"
       end
@@ -40,28 +77,31 @@ module LCD
       def run!(params = {})
         cmd = cmd_str(params)
         if should_run?(params)
-          puts RemoteStep.ssh_exec(cmd, @config)
+          puts ssh_exec(cmd)
         else
           puts "Skipping remote `#{cmd}`"
         end
       end
+    end
 
-      private
-      def self.ssh_exec(cmd, config)
-        user = config[:ssh_user] or raise "'ssh_user' must be configured"
-        port = config[:ssh_port] || 22
-        host = config[:ssh_host] or raise "'ssh_host' must be configured"
-
-        extra_opts = { port: port }
-        if password = config[:ssh_password]
-          extra_opts.merge!(password: password)
-        elsif ssh_key = config[:ssh_key]
-          extra_opts.merge!(keys: [ssh_key])
+    # TODO: consider another child class for steps that run commands and
+    # steps that do not necessarily depend on a single command.
+    class PutFile < Step
+      def run!(params = {})
+        if should_run?(params)
+          upload_file(params)
+        else
+          puts "Skipping upload of #{params[:target]}"
         end
+      end
 
-        Net::SSH.start(host, user, extra_opts) do |ssh|
-          ssh.exec_sc!(cmd)
-        end
+      def cmd_str(params)
+        "scp -P#{@config[:ssh_port]} #{params[:source]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{params[:target]}"
+      end
+
+      def should_run?(params)
+        result = ssh_exec("test -f #{params[:target]}")
+        result[:exit_code] == 1
       end
     end
 
@@ -90,7 +130,7 @@ module LCD
       end
 
       def should_run?(params)
-        result = RemoteStep.ssh_exec("test -d #{params[:target]}", @config)
+        result = ssh_exec("test -d #{params[:target]}")
         result[:exit_code] == 1
       end
     end
@@ -114,7 +154,7 @@ module LCD
     class BuildDockerImage < RemoteStep
       def cmd_str(params)
         name = params[:name] or raise "'name' parameter is required"
-        path = params[:path] || '.'
+        path = params[:path] or raise "'path' parameter is required"
         tag = params[:tag] || 'latest'
 
         "docker build -t #{name}:#{tag} #{path}"
@@ -122,7 +162,7 @@ module LCD
 
       def should_run?(params)
         cmd = "docker ps -a | grep -qs #{name}"
-        result = RemoteStep.ssh_exec(cmd, @config)
+        result = ssh_exec(cmd)
         params[:rebuild] || result[:exit_code] == 1
       end
     end
@@ -131,6 +171,7 @@ module LCD
       def cmd_str(params)
         image = params[:image] or raise "'image' parameter is required"
         name = params[:name] or raise "'name' parameter is required"
+        tag = params[:tag] || 'latest'
         ports = params[:ports]
         volumes = params[:volumes]
 
@@ -150,13 +191,13 @@ module LCD
           end
         end
 
-        cmd << image
+        cmd << "#{image}:#{tag}"
         cmd.join(' ')
       end
 
       def should_run?(params)
         cmd = "docker ps | grep -qs #{name}"
-        result = RemoteStep.ssh_exec(cmd, @config)
+        result = ssh_exec(cmd)
         result[:exit_code] == 1
       end
     end
@@ -169,7 +210,8 @@ module LCD
       :create_directory     => Steps::CreateDirectory,
       :clone_repository     => Steps::CloneRepository,
       :build_docker_image   => Steps::BuildDockerImage,
-      :run_docker_container => Steps::RunDockerContainer
+      :run_docker_container => Steps::RunDockerContainer,
+      :put_file             => Steps::PutFile
     }
 
     attr_accessor :config
