@@ -125,9 +125,11 @@ module LCD
         template = params[:template] or raise "'template' parameter is required"
         target = params[:to] or raise "'target' parameter is required"
         template_params = params[:params] || {}
-        user = params[:user]
-        group = params[:group]
-        mode = params[:mode] || 0644
+
+        # TODO: remote file user/group/mode
+        # user = params[:user]
+        # group = params[:group]
+        # mode = params[:mode] || 0644
 
         raise "'#{template}' does not exist" unless File.exist?(template)
 
@@ -141,8 +143,6 @@ module LCD
             upload_file source: temp.path, target: target
           end
         end
-
-        # TODO: remote file user/group/mode
       end
 
       def preview(params)
