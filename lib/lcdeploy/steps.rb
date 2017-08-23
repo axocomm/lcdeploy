@@ -33,15 +33,15 @@ module LCD
 
       # TODO: make instance methods
       private
-      def self.ssh_exec(cmd, config)
-        user = config[:ssh_user] or raise "'ssh_user' must be configured"
-        port = config[:ssh_port] || 22
-        host = config[:ssh_host] or raise "'ssh_host' must be configured"
+      def ssh_exec(cmd)
+        user = @config[:ssh_user] or raise "'ssh_user' must be configured"
+        port = @config[:ssh_port] || 22
+        host = @config[:ssh_host] or raise "'ssh_host' must be configured"
 
         extra_opts = { port: port }
-        if password = config[:ssh_password]
+        if password = @config[:ssh_password]
           extra_opts.merge!(password: password)
-        elsif ssh_key = config[:ssh_key]
+        elsif ssh_key = @config[:ssh_key]
           extra_opts.merge!(keys: [ssh_key])
         end
 
@@ -50,15 +50,15 @@ module LCD
         end
       end
 
-      def self.upload_file(params, config)
-        user = config[:ssh_user] or raise "'ssh_user' must be configured"
-        port = config[:ssh_port] || 22
-        host = config[:ssh_host] or raise "'ssh_host' must be configured"
+      def upload_file(params)
+        user = @config[:ssh_user] or raise "'ssh_user' must be configured"
+        port = @config[:ssh_port] || 22
+        host = @config[:ssh_host] or raise "'ssh_host' must be configured"
 
         extra_opts = { port: port }
-        if password = config[:ssh_password]
+        if password = @config[:ssh_password]
           extra_opts.merge!(password: password)
-        elsif ssh_key = config[:ssh_key]
+        elsif ssh_key = @config[:ssh_key]
           extra_opts.merge!(keys: [ssh_key])
         end
 
@@ -79,7 +79,7 @@ module LCD
       def run!(params = {})
         cmd = cmd_str(params)
         if should_run?(params)
-          puts Step.ssh_exec(cmd, @config)
+          puts ssh_exec(cmd)
         else
           puts "Skipping remote `#{cmd}`"
         end
@@ -91,7 +91,7 @@ module LCD
     class PutFile < Step
       def run!(params = {})
         if should_run?(params)
-          Step.upload_file(params, @config)
+          upload_file(params)
         else
           puts "Skipping upload of #{params[:target]}"
         end
@@ -102,7 +102,7 @@ module LCD
       end
 
       def should_run?(params)
-        result = Step.ssh_exec("test -f #{params[:target]}", @config)
+        result = ssh_exec("test -f #{params[:target]}")
         result[:exit_code] == 1
       end
     end
@@ -132,7 +132,7 @@ module LCD
       end
 
       def should_run?(params)
-        result = Step.ssh_exec("test -d #{params[:target]}", @config)
+        result = ssh_exec("test -d #{params[:target]}")
         result[:exit_code] == 1
       end
     end
@@ -164,7 +164,7 @@ module LCD
 
       def should_run?(params)
         cmd = "docker ps -a | grep -qs #{name}"
-        result = Step.ssh_exec(cmd, @config)
+        result = ssh_exec(cmd)
         params[:rebuild] || result[:exit_code] == 1
       end
     end
@@ -199,7 +199,7 @@ module LCD
 
       def should_run?(params)
         cmd = "docker ps | grep -qs #{name}"
-        result = Step.ssh_exec(cmd, @config)
+        result = ssh_exec(cmd)
         result[:exit_code] == 1
       end
     end
