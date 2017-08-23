@@ -2,6 +2,8 @@
 
 Somewhat drama-free deployments.
 
+Please note, this document (and the project, duh) are very WIP.
+
 ## Rationale
 
 This project aims to be a lightweight, easy-to-use deployment system
@@ -97,16 +99,21 @@ filename, etc.).
 
 The following are the currently-supported steps and their parameters.
 
-### `put_file`
+### Local Steps
 
-This copies a local file to the remote server using SCP.
+These steps execute commands (or otherwise do *something*) on the
+local machine.
 
-#### Parameters
+#### `put_file`
+
+Copies a local file to the remote server using SCP
+
+##### Parameters
 
 - `target` (label argument): the remote target
 - `source`: the local source file
 
-#### Example
+##### Example
 
 ``` ruby
 put_file '/home/deploy/foo.bar/config.yml', source: 'config.prod.yml'
@@ -114,3 +121,85 @@ put_file '/home/deploy/foo.bar/config.yml', source: 'config.prod.yml'
 
 would copy `config.prod.yml` to
 `<ssh_user>@<ssh_host>:/home/deploy/foo.bar/config.yml`.
+
+### Remote Steps
+
+These steps connect to the host via SSH for command execution.
+
+#### `create_directory`
+
+Creates a directory if it does not exist
+
+##### Parameters
+
+- `target` (label argument): the remote target
+- `user` (optional, defaults to `ssh_user`): the user of the directory
+- `group` (optional, defaults to `ssh_user`): the group of the directory
+- `mode` (optional, defaults to 644): the mode of the directory
+
+##### Example
+
+``` ruby
+create_directory '/www/foo.bar', user: 'deploy', group: 'www-data'
+```
+
+#### `clone_repository`
+
+Clones the given repository
+
+##### Parameters
+
+- `source` (label argument): the repository URL (TODO: might swap with `target`)
+- `to`: where to clone the repository
+- `branch` (optional, defaults to 'master'): which branch to checkout
+- `user` (optional, defaults to `ssh_user`): the user
+- `group` (optional, defaults to `ssh_user`): the group
+
+##### Example
+
+``` ruby
+clone_repository 'git@gitlab.com:axocomm/foo.bar',
+                 to: '/home/deploy/foo.bar',
+                 user: 'deploy',
+                 branch: 'dev'
+                 ```
+
+#### `build_docker_image`
+
+Builds a Docker image
+
+##### Parameters
+
+- `name` (label argument): the image name
+- `path`: where to find the `Dockerfile`
+- `tag` (optional, defaults to 'latest'): the image tag
+
+##### Example
+
+``` ruby
+build_docker_image 'foo-bar', tag: 'dev', path: repo_dir
+```
+
+#### `run_docker_container`
+
+Start a Docker container
+
+##### Parameters
+
+- `image` (label argument): the image name
+- `name`: the name of the container
+- `tag` (optional, defaults to 'latest'): the image tag
+- `ports` (optional): an array of ports to forward from the container
+    Each element can be an integer port or an array of `[<host port>, <container port>]`
+- `volumes` (optional): an array of volumes to add to the container
+    Each element must be an array containing the host directory and mount point
+
+##### Example
+
+``` ruby
+run_docker_container 'foo-bar',
+                     image: 'foo-bar',
+                     tag: 'dev',
+                     ports: [5000, [1234, 4567]],
+                     volumes: [[Dir.pwd, '/app']]
+```
