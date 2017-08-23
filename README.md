@@ -162,7 +162,7 @@ clone_repository 'git@gitlab.com:axocomm/foo.bar',
                  to: '/home/deploy/foo.bar',
                  user: 'deploy',
                  branch: 'dev'
-                 ```
+```
 
 #### `build_docker_image`
 
