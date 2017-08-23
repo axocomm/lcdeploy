@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'net/scp'
 require 'singleton'
 
 require 'lcdeploy/util'
@@ -65,9 +66,7 @@ module LCD
         source = params[:source] or raise "'source' is required"
         target = params[:target] or raise "'target' is required"
 
-        Net::SSH.start(host, user, extra_opts) do |ssh|
-          ssh.scp.upload(source, target)
-        end
+        Net::SCP.upload!(host, user, source, target, ssh: extra_opts)
       end
 
       def to_s

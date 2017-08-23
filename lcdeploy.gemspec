@@ -16,4 +16,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'thor', '~> 0.20'
   s.add_dependency 'net-ssh', '~> 3.1'
+  s.add_dependency 'net-scp', '~> 1.2'
 end
