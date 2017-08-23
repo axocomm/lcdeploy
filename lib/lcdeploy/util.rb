@@ -1,4 +1,7 @@
+require 'erb'
 require 'net/ssh'
+require 'ostruct'
+require 'tempfile'
 
 class Fixnum
   def to_base(to, from = 10)
@@ -53,8 +56,19 @@ end
 
 module LCD
   class Util
+    @@TEMP_PREFIX = 'lcd-'
+
     def self.default_lcdfile
       File.join(Dir.pwd, 'lcdfile')
+    end
+
+    def self.create_temp_file!
+      Tempfile.new @@TEMP_PREFIX
+    end
+
+    def self.render_template(content, params = {})
+      template_binding = OpenStruct.new(params).instance_eval { binding }
+      ERB.new(content).result(template_binding)
     end
   end
 end
