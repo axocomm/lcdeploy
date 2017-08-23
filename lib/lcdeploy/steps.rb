@@ -32,7 +32,6 @@ module LCD
         "sudo -u #{username} #{cmd}"
       end
 
-      # TODO: make instance methods
       private
       def ssh_exec(cmd)
         user = @config[:ssh_user] or raise "'ssh_user' must be configured"
