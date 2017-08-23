@@ -196,7 +196,7 @@ module LCD
       end
 
       def should_run?(params)
-        cmd = "docker ps | grep -qs #{name}"
+        cmd = "docker ps | grep -qs #{params[:name]}"
         result = ssh_exec(cmd)
         result[:exit_code] == 1
       end
