@@ -156,7 +156,7 @@ module LCD
     class BuildDockerImage < RemoteStep
       def cmd_str(params)
         name = params[:name] or raise "'name' parameter is required"
-        path = params[:path] || '.'
+        path = params[:path] or raise "'path' parameter is required"
         tag = params[:tag] || 'latest'
 
         "docker build -t #{name}:#{tag} #{path}"
@@ -173,6 +173,7 @@ module LCD
       def cmd_str(params)
         image = params[:image] or raise "'image' parameter is required"
         name = params[:name] or raise "'name' parameter is required"
+        tag = params[:tag] || 'latest'
         ports = params[:ports]
         volumes = params[:volumes]
 
@@ -192,7 +193,7 @@ module LCD
           end
         end
 
-        cmd << image
+        cmd << "#{image}:#{tag}"
         cmd.join(' ')
       end
 
