@@ -123,13 +123,13 @@ Copies a local file to the remote server using SCP
 
 ##### Parameters
 
-- `target` (label argument): the remote target
-- `source`: the local source file
+- `source` (label argument): the local source file
+- `target`: the remote target
 
 ##### Example
 
 ``` ruby
-put_file '/home/deploy/foo.bar/config.yml', source: 'config.prod.yml'
+copy_file 'config.prod.yml', target: '/home/deploy/foo.bar/config.yml'
 ```
 
 would copy `config.prod.yml` to
@@ -142,7 +142,7 @@ Render an ERB template
 ##### Parameters
 
 - `template` (label argument): the template name
-- `to`: the target file
+- `target`: the target file
 - `params`: a hash of template parameters
 - `user` (optional, defaults to `ssh_user`): the user of the file
 - `group` (optional, defaults to `ssh_user`): the group of the file
@@ -152,7 +152,7 @@ Render an ERB template
 
 ``` ruby
 render_template 'config.json.erb',
-                to: '/home/deploy/foo.bar/config.json',
+                target: '/home/deploy/foo.bar/config.json',
                 params: {
                   db_host: '22.22.22.22',
                   db_user: 'foo',
@@ -189,7 +189,7 @@ Clones the given repository
 ##### Parameters
 
 - `source` (label argument): the repository URL (TODO: might swap with `target`)
-- `to`: where to clone the repository
+- `target`: where to clone the repository
 - `branch` (optional, defaults to 'master'): which branch to checkout
 - `user` (optional, defaults to `ssh_user`): the user
 - `group` (optional, defaults to `ssh_user`): the group
@@ -198,7 +198,7 @@ Clones the given repository
 
 ``` ruby
 clone_repository 'git@gitlab.com:axocomm/foo.bar',
-                 to: '/home/deploy/foo.bar',
+                 target: '/home/deploy/foo.bar',
                  user: 'deploy',
                  branch: 'dev'
 ```
