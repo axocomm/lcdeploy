@@ -94,7 +94,7 @@ module LCD
     class PutFile < Step
       def run!(params = {})
         if should_run?(params)
-          upload_file(params)
+          upload_file(params) # TODO: set permissions of remote file
         else
           puts "Skipping upload of #{params[:target]}"
         end
@@ -137,8 +137,30 @@ module LCD
         # TODO: remote file user/group/mode
       end
 
+      # TODO: new method for display of command (can default to
+      # cmd_str) for situation like this that mixes local and remote
       def cmd_str(params)
+        target = params[:to]
+        cmd = [
+          "erb #{params[:template]} > tmpfile",
+          "scp -P#{@config[:ssh_port]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{target}"
+        ]
 
+        user = params[:user]
+        group = params[:group]
+        if user and group
+          cmd << "chown #{user}:#{group} #{target}"
+        elsif user
+          cmd << "chown #{user} #{target}"
+        elsif group
+          cmd << "chgrp #{group} #{target}"
+        end
+
+        if mode = params[:mode]
+          cmd << "chmod #{mode.to_s(10).to_i.to_s(8)} #{target}"
+        end
+
+        cmd.join(' && ')
       end
 
       # TODO: as above, check file MD5
@@ -162,7 +184,7 @@ module LCD
         elsif user
           cmd << "chown #{user} #{target}"
         elsif group
-          cmd << "chown :#{group} #{target}"
+          cmd << "chgrp #{group} #{target}"
         end
 
         if mode
