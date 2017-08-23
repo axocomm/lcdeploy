@@ -24,6 +24,10 @@ module LCD
         raise NotImplementedError, 'Step class must implement cmd_str'
       end
 
+      def preview(params)
+        "L: #{cmd_str(params)}"
+      end
+
       # TODO: a more robust approach, e.g. what happens when the file
       # exists but the permissions are wrong? Or content doesn't match?
       #
@@ -87,6 +91,10 @@ module LCD
           puts "Skipping remote `#{cmd}`"
         end
       end
+
+      def preview(params)
+        "R: #{cmd_str(params)}"
+      end
     end
 
     # TODO: consider another child class for steps that run commands and
@@ -100,8 +108,8 @@ module LCD
         end
       end
 
-      def cmd_str(params)
-        "scp -P#{@config[:ssh_port]} #{params[:source]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{params[:target]}"
+      def preview(params)
+        "L: scp -P#{@config[:ssh_port]} #{params[:source]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{params[:target]}"
       end
 
       # TODO: check file content (MD5?)
@@ -137,30 +145,28 @@ module LCD
         # TODO: remote file user/group/mode
       end
 
-      # TODO: new method for display of command (can default to
-      # cmd_str) for situation like this that mixes local and remote
-      def cmd_str(params)
+      def preview(params)
         target = params[:to]
         cmd = [
-          "erb #{params[:template]} > tmpfile",
-          "scp -P#{@config[:ssh_port]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{target}"
+          "L: erb #{params[:template]} > tmpfile",
+          "L: scp -P#{@config[:ssh_port]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{target}"
         ]
 
         user = params[:user]
         group = params[:group]
         if user and group
-          cmd << "chown #{user}:#{group} #{target}"
+          cmd << "R: chown #{user}:#{group} #{target}"
         elsif user
-          cmd << "chown #{user} #{target}"
+          cmd << "R: chown #{user} #{target}"
         elsif group
-          cmd << "chgrp #{group} #{target}"
+          cmd << "R: chgrp #{group} #{target}"
         end
 
         if mode = params[:mode]
-          cmd << "chmod #{mode.to_s(10).to_i.to_s(8)} #{target}"
+          cmd << "R: chmod #{mode.to_s(10).to_i.to_s(8)} #{target}"
         end
 
-        cmd.join(' && ')
+        cmd.join("\n")
       end
 
       # TODO: as above, check file MD5
@@ -286,7 +292,7 @@ module LCD
       cls = @@type_dispatch[type] or raise "Unknown step type '#{type.to_s}'"
       step = cls.new(config)
       if $dry_run
-        puts step.cmd_str(params)
+        puts step.preview(params)
       else
         step.run!(params)
       end
