@@ -107,6 +107,9 @@ for the step. Eventually this will probably move to being an actual
 label (also serving as a default value for a target directory,
 filename, etc.).
 
+Parameters are subject to change and there isn't really a convention
+yet about source/destination.
+
 The following are the currently-supported steps and their parameters.
 
 ### Local Steps
@@ -131,6 +134,32 @@ put_file '/home/deploy/foo.bar/config.yml', source: 'config.prod.yml'
 
 would copy `config.prod.yml` to
 `<ssh_user>@<ssh_host>:/home/deploy/foo.bar/config.yml`.
+
+#### `render_template`
+
+Render an ERB template
+
+##### Parameters
+
+- `template` (label argument): the template name
+- `to`: the target file
+- `params`: a hash of template parameters
+- `user` (optional, defaults to `ssh_user`): the user of the file
+- `group` (optional, defaults to `ssh_user`): the group of the file
+- `mode` (optional, defaults to 644): the permissions of the file
+
+##### Example
+
+``` ruby
+render_template 'config.json.erb',
+                to: '/home/deploy/foo.bar/config.json',
+                params: {
+                  db_host: '22.22.22.22',
+                  db_user: 'foo',
+                  db_password: 'bar',
+                  db_name: 'foobar'
+                }
+```
 
 ### Remote Steps
 

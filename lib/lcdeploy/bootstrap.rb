@@ -36,3 +36,8 @@ def put_file(target, params = {})
   params.merge!(target: target)
   LCD::StepRunner.instance.dispatch :put_file, params
 end
+
+def render_template(template, params = {})
+  params.merge!(template: template)
+  LCD::StepRunner.instance.dispatch :render_template, params
+end

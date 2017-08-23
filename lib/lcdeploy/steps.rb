@@ -24,6 +24,11 @@ module LCD
         raise NotImplementedError, 'Step class must implement cmd_str'
       end
 
+      # TODO: a more robust approach, e.g. what happens when the file
+      # exists but the permissions are wrong? Or content doesn't match?
+      #
+      # Maybe a collection of checks to run per-step instead of just
+      # a predicate
       def should_run?(params)
         true
       end
@@ -99,6 +104,44 @@ module LCD
         "scp -P#{@config[:ssh_port]} #{params[:source]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{params[:target]}"
       end
 
+      # TODO: check file content (MD5?)
+      def should_run?(params)
+        result = ssh_exec("test -f #{params[:target]}")
+        result[:exit_code] == 1
+      end
+    end
+
+    # Render a template locally and SCP to host.
+    class RenderTemplate < Step
+      def run!(params = {})
+        template = params[:template] or raise "'template' parameter is required"
+        target = params[:to] or raise "'target' parameter is required"
+        template_params = params[:params] || {}
+        user = params[:user]
+        group = params[:group]
+        mode = params[:mode] || 0644
+
+        raise "'#{template}' does not exist" unless File.exist?(template)
+
+        File.open(template) do |fh|
+          temp = LCD::Util.create_temp_file!
+          rendered = LCD::Util.render_template(fh.read, template_params)
+          File.open(temp, 'w') do |tfh|
+            tfh.write(rendered)
+            tfh.close
+
+            upload_file source: temp.path, target: target
+          end
+        end
+
+        # TODO: remote file user/group/mode
+      end
+
+      def cmd_str(params)
+
+      end
+
+      # TODO: as above, check file MD5
       def should_run?(params)
         result = ssh_exec("test -f #{params[:target]}")
         result[:exit_code] == 1
@@ -211,7 +254,8 @@ module LCD
       :clone_repository     => Steps::CloneRepository,
       :build_docker_image   => Steps::BuildDockerImage,
       :run_docker_container => Steps::RunDockerContainer,
-      :put_file             => Steps::PutFile
+      :put_file             => Steps::PutFile,
+      :render_template      => Steps::RenderTemplate
     }
 
     attr_accessor :config
