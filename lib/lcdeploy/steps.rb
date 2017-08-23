@@ -161,7 +161,7 @@ module LCD
       end
 
       def should_run?(params)
-        cmd = "docker ps -a | grep -qs #{name}"
+        cmd = "docker images | grep -qs #{params[:name]}"
         result = ssh_exec(cmd)
         params[:rebuild] || result[:exit_code] == 1
       end
