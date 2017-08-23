@@ -183,6 +183,7 @@ Builds a Docker image
 - `name` (label argument): the image name
 - `path`: where to find the `Dockerfile`
 - `tag` (optional, defaults to 'latest'): the image tag
+- `rebuild` (optional, defaults to false): rebuild the image if it exists
 
 ##### Example
 
