@@ -84,6 +84,16 @@ You can also pass in `from_file` to read from a JSON file:
 }
 ```
 
+#### Configuration Options
+
+- `ssh_host`: the target machine hostname or IP
+- `ssh_user`: the user to connect as
+- `ssh_password` (optional): the SSH password
+- `ssh_key` (optional): the SSH public key
+
+One of `ssh_password` or `ssh_key` must be provided. Soon this should
+be prompting for a username and password if necessary.
+
 ## Steps
 
 Steps are pretty self-explanatory. They will typically follow the form
