@@ -243,3 +243,19 @@ run_docker_container 'foo-bar',
                      ports: [5000, [1234, 4567]],
                      volumes: [[Dir.pwd, '/app']]
 ```
+
+#### `run_command`
+
+Runs a command remotely
+
+##### Parameters
+
+- `command` (label argument): the command
+- `cwd` (optional): where to run the command
+- `user` (optional, defaults to `ssh_user`): the user to run the command as
+
+##### Example
+
+```ruby
+run_command 'npm i', cwd: repo_dir
+```

@@ -272,6 +272,24 @@ module LCD
         result[:exit_code] == 1
       end
     end
+
+    class RunCommand < RemoteStep
+      def cmd_str(params)
+        cmd = params[:command]
+        user = params[:user]
+        cwd = params[:cwd]
+
+        if cwd
+          cmd = "cd #{cwd} && #{cmd}"
+        end
+
+        if user
+          cmd = "#{as_user(user)} #{cmd}"
+        end
+
+        cmd
+      end
+    end
   end
 
   class StepRunner
@@ -283,7 +301,8 @@ module LCD
       :build_docker_image   => Steps::BuildDockerImage,
       :run_docker_container => Steps::RunDockerContainer,
       :copy_file            => Steps::CopyFile,
-      :render_template      => Steps::RenderTemplate
+      :render_template      => Steps::RenderTemplate,
+      :run_command          => Steps::RunCommand
     }
 
     attr_accessor :config

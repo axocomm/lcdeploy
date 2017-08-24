@@ -41,3 +41,8 @@ def render_template(template, params = {})
   params.merge!(template: template)
   LCD::StepRunner.instance.dispatch :render_template, params
 end
+
+def run_command(command, params = {})
+  params.merge!(command: command)
+  LCD::StepRunner.instance.dispatch :run_command, params
+end
