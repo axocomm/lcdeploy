@@ -117,7 +117,7 @@ The following are the currently-supported steps and their parameters.
 These steps execute commands (or otherwise do *something*) on the
 local machine.
 
-#### `put_file`
+#### `copy_file`
 
 Copies a local file to the remote server using SCP
 
@@ -226,8 +226,8 @@ Start a Docker container
 
 ##### Parameters
 
-- `image` (label argument): the image name
-- `name`: the name of the container
+- `name` (label argument): the name of the container
+- `image`: the image name
 - `tag` (optional, defaults to 'latest'): the image tag
 - `ports` (optional): an array of ports to forward from the container
     Each element can be an integer port or an array of `[<host port>, <container port>]`
