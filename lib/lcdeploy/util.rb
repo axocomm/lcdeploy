@@ -3,12 +3,6 @@ require 'net/ssh'
 require 'ostruct'
 require 'tempfile'
 
-class Fixnum
-  def to_base(to, from = 10)
-    self.to_s.to_i(from).to_s(to)
-  end
-end
-
 class Net::SSH::Connection::Session
   class CommandFailed < StandardError
   end
@@ -17,9 +11,11 @@ class Net::SSH::Connection::Session
   end
 
   def exec_sc!(cmd)
-    stdout_data, stderr_data = '', ''
-    exit_code, exit_signal = nil, nil
-    self.open_channel do |channel|
+    stdout_data = ''
+    stderr_data = ''
+    exit_code = nil
+
+    open_channel do |channel|
       channel.exec(cmd) do |_, success|
         unless success
           raise CommandExecutionFailed, "Command #{cmd} failed to execute"
@@ -36,20 +32,15 @@ class Net::SSH::Connection::Session
         channel.on_request('exit-status') do |_, data|
           exit_code = data.read_long
         end
-
-        channel.on_request('exit-signal') do |_, data|
-          exit_signal = data.read_long
-        end
       end
     end
 
-    self.loop
+    loop
 
     {
       stdout: stdout_data,
       stderr: stderr_data,
-      exit_code: exit_code,
-      exit_signal: exit_signal
+      exit_code: exit_code
     }
   end
 end
