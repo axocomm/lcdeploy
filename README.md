@@ -117,19 +117,19 @@ The following are the currently-supported steps and their parameters.
 These steps execute commands (or otherwise do *something*) on the
 local machine.
 
-#### `put_file`
+#### `copy_file`
 
 Copies a local file to the remote server using SCP
 
 ##### Parameters
 
-- `target` (label argument): the remote target
-- `source`: the local source file
+- `source` (label argument): the local source file
+- `target`: the remote target
 
 ##### Example
 
 ``` ruby
-put_file '/home/deploy/foo.bar/config.yml', source: 'config.prod.yml'
+copy_file 'config.prod.yml', target: '/home/deploy/foo.bar/config.yml'
 ```
 
 would copy `config.prod.yml` to
@@ -142,7 +142,7 @@ Render an ERB template
 ##### Parameters
 
 - `template` (label argument): the template name
-- `to`: the target file
+- `target`: the target file
 - `params`: a hash of template parameters
 - `user` (optional, defaults to `ssh_user`): the user of the file
 - `group` (optional, defaults to `ssh_user`): the group of the file
@@ -152,7 +152,7 @@ Render an ERB template
 
 ``` ruby
 render_template 'config.json.erb',
-                to: '/home/deploy/foo.bar/config.json',
+                target: '/home/deploy/foo.bar/config.json',
                 params: {
                   db_host: '22.22.22.22',
                   db_user: 'foo',
@@ -189,7 +189,7 @@ Clones the given repository
 ##### Parameters
 
 - `source` (label argument): the repository URL (TODO: might swap with `target`)
-- `to`: where to clone the repository
+- `target`: where to clone the repository
 - `branch` (optional, defaults to 'master'): which branch to checkout
 - `user` (optional, defaults to `ssh_user`): the user
 - `group` (optional, defaults to `ssh_user`): the group
@@ -198,7 +198,7 @@ Clones the given repository
 
 ``` ruby
 clone_repository 'git@gitlab.com:axocomm/foo.bar',
-                 to: '/home/deploy/foo.bar',
+                 target: '/home/deploy/foo.bar',
                  user: 'deploy',
                  branch: 'dev'
 ```
@@ -226,8 +226,8 @@ Start a Docker container
 
 ##### Parameters
 
-- `image` (label argument): the image name
-- `name`: the name of the container
+- `name` (label argument): the name of the container
+- `image`: the image name
 - `tag` (optional, defaults to 'latest'): the image tag
 - `ports` (optional): an array of ports to forward from the container
     Each element can be an integer port or an array of `[<host port>, <container port>]`
@@ -242,4 +242,20 @@ run_docker_container 'foo-bar',
                      tag: 'dev',
                      ports: [5000, [1234, 4567]],
                      volumes: [[Dir.pwd, '/app']]
+```
+
+#### `run_command`
+
+Runs a command remotely
+
+##### Parameters
+
+- `command` (label argument): the command
+- `cwd` (optional): where to run the command
+- `user` (optional, defaults to `ssh_user`): the user to run the command as
+
+##### Example
+
+```ruby
+run_command 'npm i', cwd: repo_dir
 ```

@@ -32,12 +32,17 @@ def run_docker_container(name, params = {})
   LCD::StepRunner.instance.dispatch :run_docker_container, params
 end
 
-def put_file(target, params = {})
-  params.merge!(target: target)
-  LCD::StepRunner.instance.dispatch :put_file, params
+def copy_file(source, params = {})
+  params.merge!(source: source)
+  LCD::StepRunner.instance.dispatch :copy_file, params
 end
 
 def render_template(template, params = {})
   params.merge!(template: template)
   LCD::StepRunner.instance.dispatch :render_template, params
+end
+
+def run_command(command, params = {})
+  params.merge!(command: command)
+  LCD::StepRunner.instance.dispatch :run_command, params
 end

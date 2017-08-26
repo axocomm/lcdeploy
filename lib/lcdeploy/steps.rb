@@ -99,7 +99,7 @@ module LCD
 
     # TODO: consider another child class for steps that run commands and
     # steps that do not necessarily depend on a single command.
-    class PutFile < Step
+    class CopyFile < Step
       def run!(params = {})
         if should_run?(params)
           upload_file(params) # TODO: set permissions of remote file
@@ -123,7 +123,7 @@ module LCD
     class RenderTemplate < Step
       def run!(params = {})
         template = params[:template] or raise "'template' parameter is required"
-        target = params[:to] or raise "'target' parameter is required"
+        target = params[:target] or raise "'target' parameter is required"
         template_params = params[:params] || {}
 
         # TODO: remote file user/group/mode
@@ -146,7 +146,7 @@ module LCD
       end
 
       def preview(params)
-        target = params[:to]
+        target = params[:target]
         cmd = [
           "L: erb #{params[:template]} > tmpfile",
           "L: scp -P#{@config[:ssh_port]} #{@config[:ssh_user]}@#{@config[:ssh_host]}:#{target}"
@@ -209,7 +209,7 @@ module LCD
     class CloneRepository < RemoteStep
       def cmd_str(params)
         source = params[:source] or raise "'source' parameter is required"
-        target = params[:to] or raise "'target' parameter is required"
+        target = params[:target] or raise "'target' parameter is required"
         user = params[:user]
         branch = params[:branch] || 'master'
 
@@ -272,6 +272,24 @@ module LCD
         result[:exit_code] == 1
       end
     end
+
+    class RunCommand < RemoteStep
+      def cmd_str(params)
+        cmd = params[:command]
+        user = params[:user]
+        cwd = params[:cwd]
+
+        if cwd
+          cmd = "cd #{cwd} && #{cmd}"
+        end
+
+        if user
+          cmd = "#{as_user(user)} #{cmd}"
+        end
+
+        cmd
+      end
+    end
   end
 
   class StepRunner
@@ -282,8 +300,9 @@ module LCD
       :clone_repository     => Steps::CloneRepository,
       :build_docker_image   => Steps::BuildDockerImage,
       :run_docker_container => Steps::RunDockerContainer,
-      :put_file             => Steps::PutFile,
-      :render_template      => Steps::RenderTemplate
+      :copy_file            => Steps::CopyFile,
+      :render_template      => Steps::RenderTemplate,
+      :run_command          => Steps::RunCommand
     }
 
     attr_accessor :config
