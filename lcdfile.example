@@ -1,15 +1,18 @@
-configure from_file: 'config.json'
+configure from_json: 'resources/site-config.json'
 
-repo_dir = '/home/deploy/lambda.codes'
+repo_dir = '/home/deploy/xyzy-site'
 
-create_directory '/www/lambda.codes', user: 'deploy', mode: 0655
-clone_repository 'git@gitlab.com:axocomm/lambda.codes',
-                 to: repo_dir,
-                 user: 'deploy',
-                 branch: 'dev'
-build_docker_image 'lambda-codes', tag: 'staging', path: repo_dir
-run_docker_container 'lambda-codes',
-                     image: 'lambda-codes',
-                     tag: 'staging',
-                     ports: [5000, [123, 456]],
-                     volumes: [[Dir.pwd, '/app']]
+clone_repository 'git@github.com:axocomm/xyzy-site',
+                 target: repo_dir,
+                 branch: 'master'
+
+run_command 'npm i', cwd: repo_dir
+run_command 'gulp build', cwd: repo_dir
+
+build_docker_image 'xyzy-site',
+                   path: repo_dir
+
+run_docker_container 'xyzy-site',
+                     image: 'xyzy-site',
+                     ports: [[5000, 5000]],
+                     volumes: [["#{repo_dir}/resources/pages", '/pages']]
