@@ -1,13 +1,33 @@
 require 'json'
+require 'yaml'
 
 require 'lcdeploy/steps'
 
-def configure(config)
-  if file = config[:from_file]
-    File.open(file) do |fh|
-      config = JSON.parse(fh.read, symbolize_names: true)
+class Hash
+  def symbolize
+    inject({}) do |acc, (k, v)|
+      vv = if v.is_a?(Hash)
+             v.symbolize
+           else
+             v
+           end
+
+      acc[k.to_sym] = vv
+      acc
     end
   end
+end
+
+def configure(config)
+  config = if config.key?(:from_json)
+             File.open(config[:from_json]) do |fh|
+               config = JSON.parse(fh.read, symbolize_names: true)
+             end
+           elsif config.key?(:from_yaml)
+             config = YAML.load_file(config[:from_yaml]).symbolize
+           else
+             config
+           end
 
   LCD::StepRunner.instance.config = config
 end
