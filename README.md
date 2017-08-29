@@ -34,27 +34,24 @@ An `lcdfile` just contains the steps to take for deploying your
 application. It is basically just Ruby code, e.g.:
 
 ``` ruby
-configure from_file: 'config.json'
+configure from_json: 'resources/site-config.json'
 
-repo_dir = '/home/deploy/lambda-codes-snippets'
+repo_dir = '/home/deploy/xyzy-site'
 
-create_directory '/www/snippets.lambda.codes', user: 'deploy', mode: 0655
+clone_repository 'git@github.com:axocomm/xyzy-site',
+                 target: repo_dir,
+                 branch: 'master'
 
-clone_repository 'git@gitlab.com:axocomm/snippets.lambda.codes',
-                 to: repo_dir,
-                 user: 'deploy',
-                 branch: 'dev'
+run_command 'npm i', cwd: repo_dir
+run_command 'gulp build', cwd: repo_dir
 
-build_docker_image 'lambda-snippets', tag: 'dev', path: repo_dir
+build_docker_image 'xyzy-site',
+                   path: repo_dir
 
-run_docker_container 'lambda-snippets',
-                     image: 'lambda-snippets',
-                     tag: 'staging',
-                     ports: [5000, [123, 456]],
-                     volumes: [[Dir.pwd, '/app']]
-
-put_file "#{repo_dir}/resources/config.json",
-         source: 'config.json'
+run_docker_container 'xyzy-site',
+                     image: 'xyzy-site',
+                     ports: [[5000, 5000]],
+                     volumes: [["#{repo_dir}/resources/pages", '/pages']]
 ```
 
 With an `lcdfile` populated, you can now run `lcdeploy preview` to get
