@@ -21,7 +21,11 @@ To install from source, just run
     gem build lcdeploy.gemspec
     gem install gemspec-<version>.gem
 
-The `lcdeploy` executable should now be available for use in projects.
+Rake tasks `build` and `install` are also available. Just run `bundle`
+to install rake and run `rake`. This will build and install the latest
+version of the Gem from this source.
+
+The `lcd` executable should now be available for use in projects.
 
 If this gets anywhere, it will hopefully end up somewhere for sticking
 into a `Gemfile`. But for now, this works.
