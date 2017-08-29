@@ -2,6 +2,7 @@ require 'json'
 require 'yaml'
 
 require 'lcdeploy/config'
+require 'lcdeploy/log'
 require 'lcdeploy/steps'
 
 class Hash
@@ -31,6 +32,10 @@ def configure(config)
            end
 
   LCD::StepRunner.instance.config = LCD::Config.new(config)
+end
+
+def log(message, level = :info)
+  LCD::Log.log message, level
 end
 
 def config

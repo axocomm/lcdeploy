@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.files       = ['lib/lcdeploy/bootstrap.rb',
                    'lib/lcdeploy/cli.rb',
                    'lib/lcdeploy/config.rb',
+                   'lib/lcdeploy/log.rb',
                    'lib/lcdeploy/util.rb',
                    'lib/lcdeploy/lcdfile.rb',
                    'lib/lcdeploy/steps.rb']
