@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.email       = 'axocomm@gmail.com'
   s.files       = ['lib/lcdeploy/bootstrap.rb',
                    'lib/lcdeploy/cli.rb',
+                   'lib/lcdeploy/config.rb',
                    'lib/lcdeploy/util.rb',
                    'lib/lcdeploy/lcdfile.rb',
                    'lib/lcdeploy/steps.rb']

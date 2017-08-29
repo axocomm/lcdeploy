@@ -1,6 +1,7 @@
 require 'json'
 require 'yaml'
 
+require 'lcdeploy/config'
 require 'lcdeploy/steps'
 
 class Hash
@@ -21,15 +22,19 @@ end
 def configure(config)
   config = if config.key?(:from_json)
              File.open(config[:from_json]) do |fh|
-               config = JSON.parse(fh.read, symbolize_names: true)
+               JSON.parse(fh.read, symbolize_names: true)
              end
            elsif config.key?(:from_yaml)
-             config = YAML.load_file(config[:from_yaml]).symbolize
+             YAML.load_file(config[:from_yaml]).symbolize
            else
              config
            end
 
-  LCD::StepRunner.instance.config = config
+  LCD::StepRunner.instance.config = LCD::Config.new(config)
+end
+
+def config
+  LCD::StepRunner.instance.config || nil
 end
 
 def create_directory(target, params = {})
