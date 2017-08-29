@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
                    'lib/lcdeploy/util.rb',
                    'lib/lcdeploy/lcdfile.rb',
                    'lib/lcdeploy/steps.rb']
-  s.license     = 'MIT'
+  s.license     = 'GPL'
 
   s.add_dependency 'thor', '~> 0.20'
   s.add_dependency 'net-ssh', '~> 3.1'
