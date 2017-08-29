@@ -6,7 +6,7 @@ def latest_gem_file
   if gems.empty?
     nil
   else
-    gems.last
+    gems.sort.last
   end
 end
 
