@@ -9,12 +9,15 @@ Gem::Specification.new do |s|
   s.email       = 'axocomm@gmail.com'
   s.files       = ['lib/lcdeploy/bootstrap.rb',
                    'lib/lcdeploy/cli.rb',
+                   'lib/lcdeploy/config.rb',
+                   'lib/lcdeploy/log.rb',
                    'lib/lcdeploy/util.rb',
                    'lib/lcdeploy/lcdfile.rb',
                    'lib/lcdeploy/steps.rb']
-  s.license     = 'GPL'
+  s.license     = 'GPL-3.0'
 
   s.add_dependency 'thor', '~> 0.20'
   s.add_dependency 'net-ssh', '~> 3.1'
   s.add_dependency 'net-scp', '~> 1.2'
+  s.add_dependency 'colorize', '~> 0.8'
 end
