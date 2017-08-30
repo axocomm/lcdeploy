@@ -1,16 +1,17 @@
+require 'colorize'
+
 module LCD
   class Log
     def self.log(message, level = :info)
-      # TODO: Text color/bold
-      prefix = case level
-               when :warn
-                 '^^^'
-               when :error
-                 '!!!'
-               else
-                '==='
-               end
-      puts "#{prefix} #{message}"
+      prefix, color = case level
+                      when :warn
+                        ['^^^', :yellow]
+                      when :error
+                        ['!!!', :red]
+                      else
+                        ['===', :white]
+                      end
+      puts "#{prefix} #{message}".colorize(color: color, mode: :bold)
     end
 
     def self.info(message)
