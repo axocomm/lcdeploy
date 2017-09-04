@@ -16,19 +16,23 @@ commands.
 
 ## Installation
 
-To install from source, just run
+To install from this source, just run
 
     gem build lcdeploy.gemspec
     gem install gemspec-<version>.gem
 
 Rake tasks `build` and `install` are also available. Just run `bundle`
 to install rake and run `rake`. This will build and install the latest
-version of the Gem from this source.
+version of the Gem. You can also probably add `lcdeploy` as a
+dependency in a `Gemfile` by providing a `github` option pointing to
+this repository:
 
-The `lcd` executable should now be available for use in projects.
+``` ruby
+gem 'lcdeploy', github: 'axocomm/lcdeploy'
+```
 
-If this gets anywhere, it will hopefully end up somewhere for sticking
-into a `Gemfile`. But for now, this works.
+Either way, the `lcd` executable should now be available for use in
+projects.
 
 ## How to Use
 
@@ -75,7 +79,8 @@ a hash of options, e.g.:
 configure ssh_host: 'winds', ssh_user: 'deploy', ssh_key: '~/.ssh/id_rsa.pub'
 ```
 
-You can also pass in `from_file` to read from a JSON file:
+You can also pass a filename to `from_json` to read from a JSON file
+with this information, e.g.
 
 ``` json
 {
