@@ -284,7 +284,7 @@ module LCD
         end
 
         if user
-          cmd = "#{as_user(user)} #{cmd}"
+          cmd = as_user(user, cmd)
         end
 
         cmd
