@@ -10,10 +10,12 @@ def latest_gem_file
   end
 end
 
+desc "Build the #{GEM_NAME} gem"
 task :build do
   sh "gem build #{GEM_NAME}.gemspec"
 end
 
+desc "Install the #{GEM_NAME} gem"
 task :install, [:version] do |_, args|
   gem = if args.key?(:version)
           "#{GEM_NAME}-#{args[:version]}.gem"
