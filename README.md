@@ -69,7 +69,7 @@ execute the deployment.
 ### Configuration
 
 Configuration is done either right in the `lcdfile` or via a
-JSON/(soon YAML) file. Right now this just contains SSH connection
+JSON/YAML file. Right now this just contains SSH connection
 information but may be extended to support more.
 
 To configure in the `lcdfile`, just call the `configure` function with
@@ -88,6 +88,15 @@ with this information, e.g.
   "ssh_user": "deploy",
   "ssh_key": "~/.ssh/id_rsa.pub"
 }
+```
+
+or `from_yaml` to read from a YAML:
+
+``` yaml
+---
+ssh_host: winds
+ssh_user: deploy
+ssh_key: ~/.ssh/id_rsa.pub
 ```
 
 #### Configuration Options

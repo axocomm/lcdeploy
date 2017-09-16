@@ -6,11 +6,8 @@ module LCD
     end
 
     def preview
-      File.open(@filename) do |fh|
-        require 'lcdeploy/bootstrap'
-        $dry_run = true
-        eval fh.read
-      end
+      $dry_run = true
+      run!
     end
 
     def run!
