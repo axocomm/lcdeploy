@@ -76,3 +76,8 @@ def run_command(command, params = {})
   params.merge!(command: command)
   LCD::StepRunner.instance.dispatch :run_command, params
 end
+
+def run_local_command(command, params = {})
+  params.merge!(command: command)
+  LCD::StepRunner.instance.dispatch :run_local_command, params
+end

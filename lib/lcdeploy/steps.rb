@@ -14,7 +14,7 @@ module LCD
       def run!(params = {})
         cmd = cmd_str(params)
         if should_run?(params)
-          puts "`#{cmd}`"
+          puts `#{cmd}`
         else
           puts "Skipping `#{cmd}`"
         end
@@ -176,6 +176,12 @@ module LCD
       end
     end
 
+    class RunLocalCommand < Step
+      def cmd_str(params)
+        params[:command]
+      end
+    end
+
     class CreateDirectory < RemoteStep
       def cmd_str(params)
         target = params[:target] or raise "'target' parameter is required"
@@ -302,7 +308,8 @@ module LCD
       :run_docker_container => Steps::RunDockerContainer,
       :copy_file            => Steps::CopyFile,
       :render_template      => Steps::RenderTemplate,
-      :run_command          => Steps::RunCommand
+      :run_command          => Steps::RunCommand,
+      :run_local_command    => Steps::RunLocalCommand
     }
 
     attr_accessor :config
