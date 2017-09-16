@@ -176,6 +176,20 @@ render_template 'config.json.erb',
                 }
 ```
 
+#### `run_local_command`
+
+Run a command locally
+
+##### Parameters
+
+- `command` (label argument): the command to run
+
+##### Example
+
+``` ruby
+run_local_command 'lein uberjar'
+```
+
 ### Remote Steps
 
 These steps connect to the host via SSH for command execution.
