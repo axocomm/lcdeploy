@@ -285,6 +285,15 @@ module LCD
         volumes = params[:volumes]
 
         cmd = []
+
+        if container_running?(name)
+          cmd << "docker stop #{name};"
+        end
+
+        if container_exists?(name)
+          cmd << "docker rm #{name};"
+        end
+
         cmd << "docker run -d --name=#{name}"
 
         if ports
@@ -304,10 +313,16 @@ module LCD
         cmd.join(' ')
       end
 
-      def should_run?(params)
-        cmd = "docker ps | grep -qs #{params[:name]}"
+      def container_running?(name)
+        cmd = "docker ps | grep -qs #{name}"
         result = ssh_exec(cmd)
-        result[:exit_code] == 1
+        result[:exit_code] == 0
+      end
+
+      def container_exists?(name)
+        cmd = "docker ps -a | grep -qs #{name}"
+        result = ssh_exec(cmd)
+        result[:exit_code] == 0
       end
     end
 
