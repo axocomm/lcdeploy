@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'lcdeploy'
-  s.version     = '0.3'
+  s.version     = '0.4'
   s.executables << 'lcd'
   s.date        = '2017-08-21'
   s.summary     = 'Drama-free deploys'
