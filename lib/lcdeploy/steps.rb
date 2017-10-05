@@ -214,10 +214,21 @@ module LCD
 
     class CloneRepository < RemoteStep
       def cmd_str(params)
-        source = params[:source] or raise "'source' parameter is required"
-        target = params[:target] or raise "'target' parameter is required"
+        raise "'source' parameter is required" unless params[:source]
+        raise "'target' parameter is required" unless params[:target]
+
+        if cloned_already?(params)
+          update_repository_cmd(params)
+        else
+          clone_repository_cmd(params)
+        end
+      end
+
+      def clone_repository_cmd(params)
         user = params[:user]
         branch = params[:branch] || 'master'
+        source = params[:source]
+        target = params[:target]
 
         cmd = "git clone -b #{branch} #{source} #{target}"
         if user
@@ -225,6 +236,27 @@ module LCD
         else
           cmd
         end
+      end
+
+      def update_repository_cmd(params)
+        user = params[:user]
+        branch = params[:branch] || 'master'
+        target = params[:target]
+
+        cmd = "cd #{target} && git pull origin #{branch}"
+        if user
+          Step.as_user user, cmd
+        else
+          cmd
+        end
+      end
+
+      # Yeah a simple should_run? probably isn't enough, e.g. here
+      # when the repository exists it shouldn't outright skip the step
+      # but rather should merge upstream changes.
+      def cloned_already?(params)
+        result = ssh_exec("test -d #{params[:target]}")
+        result[:exit_code] == 0
       end
     end
 
