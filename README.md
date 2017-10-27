@@ -288,3 +288,11 @@ Runs a command remotely
 ```ruby
 run_command 'npm i', cwd: repo_dir
 ```
+
+## TODO
+
+- Better error handling
+- More flexible condition checking
+- Move away from trying to make everything a shell command
+- Pull from repository if it already exists
+- Fix user and group for template rendering
