@@ -134,7 +134,7 @@ local machine.
 
 #### `copy_file`
 
-Copies a local file to the remote server using SCP
+Copy a local file to the remote server using SCP
 
 ##### Parameters
 
@@ -196,7 +196,7 @@ These steps connect to the host via SSH for command execution.
 
 #### `create_directory`
 
-Creates a directory if it does not exist
+Create a directory if it does not exist
 
 ##### Parameters
 
@@ -213,7 +213,7 @@ create_directory '/www/foo.bar', user: 'deploy', group: 'www-data'
 
 #### `clone_repository`
 
-Clones the given repository
+Clone a repository
 
 ##### Parameters
 
@@ -234,7 +234,7 @@ clone_repository 'git@gitlab.com:axocomm/foo.bar',
 
 #### `build_docker_image`
 
-Builds a Docker image
+Build a Docker image
 
 ##### Parameters
 
@@ -275,7 +275,7 @@ run_docker_container 'foo-bar',
 
 #### `run_command`
 
-Runs a command remotely
+Run a command remotely
 
 ##### Parameters
 
@@ -294,5 +294,6 @@ run_command 'npm i', cwd: repo_dir
 - Better error handling
 - More flexible condition checking
 - Move away from trying to make everything a shell command
-- Pull from repository if it already exists
-- Fix user and group for template rendering
+- Pull from repository if it already exists in `clone_repository`
+- Add user and group for `render_template`
+- General cleanup, including better permission/ownership handling
