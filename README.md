@@ -114,7 +114,7 @@ be prompting for a username and password if necessary.
 Steps are pretty self-explanatory. They will typically follow the form
 
 ``` ruby
-step_name '<label argument>' foo: 'bar', baz: 'quux'
+step_name '<label argument>', foo: 'bar', baz: 'quux'
 ```
 
 The `label argument` right now maps to one of the required parameters
