@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'lcdeploy'
-  s.version     = '0.3'
+  s.version     = '0.4'
   s.executables << 'lcd'
   s.date        = '2017-08-21'
   s.summary     = 'Drama-free deploys'
@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.license     = 'GPL-3.0'
 
   s.add_dependency 'thor', '~> 0.20'
-  s.add_dependency 'net-ssh', '~> 3.1'
+  s.add_dependency 'net-ssh', '~> 4.2'
   s.add_dependency 'net-scp', '~> 1.2'
   s.add_dependency 'colorize', '~> 0.8'
 end
